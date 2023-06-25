@@ -1,6 +1,22 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from inicio.forms import CrearGatoFormulario
+from inicio.models import Gato
 # Create your views here.
 
 def inicio(request):
-    return HttpResponse('<h1>Nuestra primer vista</h1>')
+    return render(request, 'inicio/inicio.html')
+
+def crear_gato(request):
+    mensaje = ''
+
+    if request.method == 'POST':
+        formulario = CrearGatoFormulario(request.POST)
+        if formulario.is_valid():
+            info = formulario.cleaned_data
+            gato = Gato(nombre=info['nombre'],edad=info['edad'],fecha_nacimiento=info['fecha_nacimiento'])
+            gato.save()
+            return render(request, 'inicio/crear_gato.html', {'formulario': formulario, 'mensaje': f'Se creó el gato {gato.nombre}'})
+        else:
+            return render(request, 'inicio/crear_gato.html', {'formulario': formulario})
+    formulario = CrearGatoFormulario()
+    return render(request, 'inicio/crear_gato.html', {'formulario': formulario, 'mensaje': mensaje})
